@@ -4,11 +4,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-public class ImagePanel extends JPanel{
+public class ImagePanel extends JPanel {
 
     public BufferedImage image;
     public Graphics imageGraphics;
-
 
 
     public int size;
@@ -17,14 +16,14 @@ public class ImagePanel extends JPanel{
     public ImagePanel() {
         size = 600;
 
-        setSize(size,size);
+        setSize(size, size);
         setVisible(true);
         setName("UI");
-        image = new BufferedImage(size,size,BufferedImage.TYPE_3BYTE_BGR);
+        image = new BufferedImage(size, size, BufferedImage.TYPE_3BYTE_BGR);
 
         imageGraphics = image.getGraphics();
         imageGraphics.setColor(Color.WHITE);
-        imageGraphics.drawRect(0,0,size,size);
+        imageGraphics.drawRect(0, 0, size, size);
     }
 
     @Override
