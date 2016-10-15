@@ -28,7 +28,6 @@ public class Wallpaper {
 
     public Wallpaper(String[] DNA) {
         parseDna(DNA);
-
     }
 
     private void parseDna(String[] dna) {
@@ -39,10 +38,12 @@ public class Wallpaper {
             if (dna[i].substring(2, 3).equalsIgnoreCase("-")) {
                 value = -value;
             }
-
+            //Assign each memory
             setMemory(dna[i].charAt(0), value);
         }
         oldmemory = memory.clone();
+
+        //Mirroring of the memories, a trick to get more interesting behaviours from less DNA
         for (int i = 13; i < 21; i++) {
             functions[i - 13] = dna[i];
         }
@@ -50,7 +51,7 @@ public class Wallpaper {
         //Simplify
 
         for (int i = 0; i < 8; i++) {
-            //Delete second variable in singleton functions
+            //Delete second variable in singleton functions, this happens to reduce lag and useless cycles
             String old = functions[i];
             functions[i] = filterSingles(functions[i]);
 
@@ -74,6 +75,8 @@ public class Wallpaper {
         for (int i = 0; i < s.length(); i++) {
             if (s.substring(i, i + 1).equalsIgnoreCase("#")) {
                 String b = s.substring(i + 1, i + 2);
+
+                //Some functions only use one paramter, so we replace the other paramter with A (wether it is a variable or function)
                 if (b.equalsIgnoreCase("A")
                         || b.equalsIgnoreCase("B")
                         || b.equalsIgnoreCase("C")
@@ -86,8 +89,10 @@ public class Wallpaper {
                         || b.equalsIgnoreCase("V")
                         || b.equalsIgnoreCase("W")
                         || b.equalsIgnoreCase("X")
-                        || b.equalsIgnoreCase("Y")) {
+                        || b.equalsIgnoreCase("Y")) { //I should really make this nicer
                     int current = 1;
+
+                    //Count brackets to get the correct range to delete
                     for (int i2 = (i + 2); i2 < s.length(); i2++) {
                         if (s.substring(i2, i2 + 1).equalsIgnoreCase("[")) {
                             current++;
@@ -132,20 +137,19 @@ public class Wallpaper {
 
     private void setMemory(char c, double value) {
         int mem = ((int) c) - 65;
-        // System.out.println("put "+c+"="+mem);
         setMemory2(mem, value);
     }
 
     private void setMemory2(int mem, double value) {
         if (mem < 22) {
+            //Mirroring memories
             memory[mem % 11] = value;
         }
     }
 
 
-    private void setMemoryForce(char c, double value) {
+    private void setMemoryForce(char c, double value) { //Use only at start to set unchangeable memories
         int mem = ((int) c) - 65;
-        //System.out.println("put "+c+"="+mem +"  ==="+value+"   (FORCE)");
         setMemoryForce2(mem, value);
 
     }
@@ -183,7 +187,7 @@ public class Wallpaper {
         red = new double[width][height];
         blue = new double[width][height];
         green = new double[width][height];
-
+        //Create the canvas
 
         for (int x = 0; x < width; x++) {
             if (x % 75 == 1) {
@@ -238,6 +242,8 @@ public class Wallpaper {
             }
         }
 
+
+        //Post processing to make any fractal visibile
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 // red[x][y] = (double)(redf[(int)Math.ceil(red[x][y])]-1)/(double)(redf[0]);
@@ -280,20 +286,16 @@ public class Wallpaper {
         //Unscaled x,y
         double ux = 0;
         double uy = 0;
-        // System.out.println("A"+getMemory('A')+"    B"+getMemory('B'));
         for (int n = 0; n < 25; n++) {
             iterateFunctions();
 
-            //System.out.println("A"+getMemory('A')+"    B"+getMemory('B'));
+
             if (getMemory('A') * getMemory('A') + getMemory('B') * getMemory('B') <= 100) {
                 ux = (((getMemory('A') + 2d) / 4d) * w);
                 uy = ((((getMemory('B') / ratio) + 2d) / 4d) * h);
 
                 if (ux >= 0 && ux < w && uy >= 0 && uy < h) {
-                    // red[ux][uy] = red[ux][uy]- red[ux][uy] * Ired.getInten(n);
-                    // green[ux][uy] = green[ux][uy]-green[ux][uy] * Igreen.getInten(n);
-                    // blue[ux][uy] = blue[ux][uy] - blue[ux][uy]*Iblue.getInten(n);
-
+                    //Check to make sure we are still in bounds of the image
                     int xx = (int) Math.floor(ux);
                     int yy = (int) Math.floor(uy);
 
@@ -301,7 +303,10 @@ public class Wallpaper {
                     red[xx][yy] = red[xx][yy] + Ired.getInten(n * 5) * r1 * (1 / (red[xx][yy] + 1));
                     green[xx][yy] = green[xx][yy] + Igreen.getInten(n * 5) * r1 * (1 / (green[xx][yy] + 1));
                     blue[xx][yy] = blue[xx][yy] + Iblue.getInten(n * 5) * r1 * (1 / (blue[xx][yy] + 1));
+                    //Add the iteration value to the current pixel we landed on
 
+
+                    //If we are still in the picture render over a 2x2 to make the image more pretty
                     if (yy + 1 < h) {
                         double r2 = (1 - (ux - xx)) * (uy - yy);
                         red[xx][yy + 1] = red[xx][yy + 1] + Ired.getInten(n * 5) * r2 * (1 / (red[xx][yy + 1] + 1));
@@ -353,6 +358,7 @@ public class Wallpaper {
             if (s.substring(3).startsWith("[")) {
                 int brackets = 1;
                 for (int i = 4; i < s.length(); i++) {
+                    //Count brackets to find the innermost function
                     if (s.substring(i, i + 1).equalsIgnoreCase("]")) {
                         brackets--;
                     } else if (s.substring(i, i + 1).equalsIgnoreCase("[")) {

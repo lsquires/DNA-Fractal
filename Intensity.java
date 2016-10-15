@@ -14,9 +14,12 @@ public class Intensity {
         k = new ArrayList<Double>();
         w = new ArrayList<Double>();
 
+        //Parse the input string into the actual useful variables for calculating colour
         for (int i = 0; i < 3; i++) {
+            //Load the numbers and scale to the right size
             double value = (Double.parseDouble(s[i + offset].substring(1, 7))) / 10000;
             if (s[i + offset].substring(0, 1).equalsIgnoreCase("-")) {
+                //Apply the right sign to the number
                 value = -value;
             }
             k.add(value);
@@ -26,12 +29,10 @@ public class Intensity {
             }
             w.add(value2);
         }
-        for (int i = 0; i < 100; i++) {
-            //System.out.println(i+"  ="+getInten(i));
-        }
     }
 
     public double getInten(int iteration) {
+        //Get the value associated with the iteration
         double value = 0;
         for (int i = 0; i < k.size(); i++) {
             value = value + (1 / (1 + Math.exp((-k.get(i)) * (iteration - w.get(i)))));
